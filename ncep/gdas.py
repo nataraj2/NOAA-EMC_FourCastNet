@@ -338,13 +338,6 @@ if __name__ == "__main__":
     data_processor = GFSDataProcessor(start_datetime, download_source, output_directory, download_directory, keep_downloaded_data)
     data_processor.get_data(args.method)
     
-    #if method == "wgrib2":
-    #  data_processor.process_data_with_wgrib2()
-    #elif method == "pygrib":
-    #  data_processor.process_data_with_pygrib()
-    #else:
-    #  raise NotImplementedError(f"Method {method} is not supported!")
-
     # remove downloaded data
     if keep_downloaded_data:
         data_processor.remove_downloaded_data()
