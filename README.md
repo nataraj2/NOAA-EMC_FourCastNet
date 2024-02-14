@@ -14,21 +14,34 @@ The following packages are needed:
 
 ### Download pre-computed stats
 
-`wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/weights.tar`
+```bash
+wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/weights.tar
+```
 
-`wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/global_means.npy`
+```bash
+wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/global_means.npy
+```
 
-`wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/global_stds.npy`
+```bash
+wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/global_stds.npy
+```
 
 ### Get input data (initial conditions) from GDAS product
 The script ncep/gdas.py can be used to prepare input data, simply use:
 
-`python gdas.py YYYYMMDDHH <> -s <s3 or nomads>`
+```bash
+python gdas.py YYYYMMDDHH <> -s <s3 or nomads>
+```
 
 file `input_YYYYMMDDHH.npy` will be created and saved in the current firectory.
 
 ### Run FourCastNetv2 in inference mode
 Run inference using
-`python inference.py -w </path/to/weightsandstats> -i </path/to/input/input_YYYYMMDDHH.npy> -o </path/to/output/> -l <forecast-hours>`
 
+```bash
+python inference.py -w </path/to/weightsandstats> -i </path/to/input/input_YYYYMMDDHH.npy> -o </path/to/output/> -l <forecast-hours>
+```
+
+### Output
+The forecast results will be saved in NumPy npy format as `output_step<i>.npy`
 
