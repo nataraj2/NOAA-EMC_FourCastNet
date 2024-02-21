@@ -1,5 +1,5 @@
 # NCEP Implementation of FourCastNet model using GDAS data as ICs
-We use ai_models_fourcastnetv2 plugin developed by ECMWF to run the model, which is FoureCastNet v2-small (https://arxiv.org/abs/2306.03838).
+We use ECMWF's [ai_models_fourcastnetv2] (https://github.com/ecmwf-lab/ai-models-fourcastnetv2/tree/main) plugin to run the model. FoureCastNet v2-small applies Spherical Fourier Neural Operators (SFNOs) as neural network architecture (https://arxiv.org/abs/2306.03838).
 
 ## Prerequisites
 The following packages are needed:
@@ -9,6 +9,10 @@ The following packages are needed:
 - pygrib
 - torch
 - ai-models-fourcastnetv2
+- iris
+- iris_grib
+- eccodes
+- cf_units
 
 ## Run the model
 
@@ -30,7 +34,7 @@ wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/gl
 The script ncep/gdas.py can be used to prepare input data, simply use:
 
 ```bash
-python gdas.py YYYYMMDDHH <> -s <s3 or nomads>
+python gdas.py YYYYMMDDHH -s <s3 or nomads> -m <wgrib2 or pygrib> -k <yes or no>
 ```
 
 file `input_YYYYMMDDHH.npy` will be created and saved in the current firectory.
@@ -39,9 +43,9 @@ file `input_YYYYMMDDHH.npy` will be created and saved in the current firectory.
 Run inference using
 
 ```bash
-python inference.py -w </path/to/weightsandstats> -i </path/to/input/input_YYYYMMDDHH.npy> -o </path/to/output/> -l <forecast-hours>
+python inference.py YYYYMMDDHH -w </path/to/weightsandstats> -i </path/to/input/input_YYYYMMDDHH.npy> -o </path/to/output/> -l <forecast-hours>
 ```
 
 ### Output
-The forecast results will be saved in NumPy npy format as `output_step<i>.npy`
+The forecast results will be saved in GRIB2 format.
 

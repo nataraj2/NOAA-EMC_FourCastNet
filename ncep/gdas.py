@@ -9,6 +9,7 @@ from time import time
 import argparse
 import subprocess
 from datetime import datetime, timedelta
+import re
 
 import boto3
 import xarray as xr
@@ -22,11 +23,11 @@ def get_dataarray(grbfile, var_name, level_type, desired_level):
     # Find the matching grib message
     variable_message = grbfile.select(shortName=var_name, typeOfLevel=level_type, level=desired_level)
 
+    #latitude read from pygrib is in [90, -90], no need to reverse for FourCastNet
     if len(variable_message) > 2:
         data = []
       
         for message in variable_message:
-            print(message)
             data.append(message.values)
         data = np.array(data)
     else:
@@ -46,6 +47,8 @@ class GFSDataProcessor:
         self.download_source = download_source
         self.output_directory = output_directory
         self.keep_downloaded_data = keep_downloaded_data
+
+        self.num_plevels = 13
 
         if self.output_directory is None:
             self.output_directory = os.getcwd()
@@ -115,16 +118,16 @@ class GFSDataProcessor:
 
         variables_to_extract = {
             'surface': {
-                ':UGRD:': {
+                ':UGRD_10:': {
                     'levels': [':10 m above ground:'],
                 },
-                ':VGRD:': {
+                ':VGRD_10:': {
                     'levels': [':10 m above ground:'],
                 },
-                ':UGRD:': {
+                ':UGRD_100:': {
                     'levels': [':100 m above ground:'],
                 },
-                ':VGRD:': {
+                ':VGRD_100:': {
                     'levels': [':100 m above ground:'],
                 },
                 ':TMP:': {
@@ -136,7 +139,7 @@ class GFSDataProcessor:
                 ':PRMSL:': {
                     'levels': [':mean sea level:'],
                 },
-                ':CWAT:': {
+                ':PWAT:': {
                     'levels': [':entire atmosphere:considered as a single layer:'],
                 },
             },
@@ -170,41 +173,46 @@ class GFSDataProcessor:
             for variable, value in variable_data.items():
                 levels = value['levels'][0]
 
+                #rename UGRD10, VGRD10, UGRD100, VGRID100
+                if bool(re.search(r'\d', variable)):
+                    variable = variable.split('_')[0] + ":"
+
                 if level_type == 'surface':
                     varname = ''.join(e for e in variable if e.isalnum()) + "_" + ''.join(e for e in levels if e.isalnum())
                 else:
                     varname = ''.join(e for e in variable if e.isalnum())
 
-                if variable == ":CWAT:":
-                    varname = 'CWAT_entireatmosphere_consideredasasinglelayer_'
+                if variable == ":PWAT:":
+                    varname = 'PWAT_entireatmosphere_consideredasasinglelayer_'
         
                 # Extract the specified variables with levels from the GRIB2 file
                 output_file = f'{variable}_{levels}.nc'
-                #output_file = f'{varname}.nc'
+
 
                 # Use wgrib2 to extract the variable with level
-                if variable == ":CWAT:": 
+                if variable == ":PWAT:": 
                     wgrib2_command = ['wgrib2', grib2_file, '-match', f'{variable}', '-netcdf', output_file]
                 else:
-                    wgrib2_command = ['wgrib2', '-nc_nlev', '13', grib2_file, '-match', f'{variable}', '-match', f'{levels}', '-netcdf', output_file]
+                    wgrib2_command = ['wgrib2', '-nc_nlev', f'{self.num_plevels}', grib2_file, '-match', f'{variable}', '-match', f'{levels}', '-netcdf', output_file]
 
                 #wgrib2_command = ['wgrib2', grib2_file, '-match', f'{variable}', '-match', f'{levels}', '-netcdf', output_file]
                 subprocess.run(wgrib2_command, check=True)
 
                 # Open the extracted netcdf file as an xarray dataset
+                #if levels == ':100 m above ground:':
 
                 ds = xr.open_dataset(output_file)
                 values = np.squeeze(ds[varname]).values.astype(np.float32)
 
-                ##units conversion
-                #if variable == ":HGT:":
-                #    values = values * 9.80665
+                #units conversion: geopotential height -> geopotential
+                if variable == ":HGT:":
+                    values = values * 9.80665
 
                 if level_type == 'upper':
-                    for ilev in range(13):
-                        data.append(values[ilev, ::-1, :]) #reverse latitude
+                    for ilev in range(self.num_plevels):
+                        data.append(values[ilev, ::-1, :]) #reverse latitude to [90, -90]
                 else:
-                    values = values[::-1, :] #reverse latidue
+                    values = values[::-1, :] #reverse latidue to [90, -90]
                     data.append(values)
 
                 ds.close()
@@ -249,7 +257,7 @@ class GFSDataProcessor:
                     'typeOfLevel': 'meanSea',
                     'level': 0,
                 },
-                'cwat': {
+                'pwat': {  ## Total column water vapor, taken from GFS precipitable water
                     'typeOfLevel': 'atmosphereSingleLayer',
                     'level': 0,
                 },
@@ -296,12 +304,12 @@ class GFSDataProcessor:
                 else:
                     for level in desired_level:
                         values = get_dataarray(grbs, variable, levelType, level)
+
+                        #units conversion: geopotential height -> geopotential
+                        if variable == 'gh':
+                            values = values * 9.80665
+
                         data.append(values)
-
-                ##units conversion
-                #if variable == 'gh':
-                #    values = values * 9.80665
-
      
         with open(f'{self.output_directory}/input_{self.start_datetime.strftime("%Y%m%d%H")}.npy', 'wb') as f:
             np.save(f, np.array(data))
@@ -339,5 +347,5 @@ if __name__ == "__main__":
     data_processor.get_data(args.method)
     
     # remove downloaded data
-    if keep_downloaded_data:
+    if not keep_downloaded_data:
         data_processor.remove_downloaded_data()
