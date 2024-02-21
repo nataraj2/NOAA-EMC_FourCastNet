@@ -1,5 +1,5 @@
 # NCEP Implementation of FourCastNet model using GDAS data as ICs
-We use ECMWF's [ai_models_fourcastnetv2] (https://github.com/ecmwf-lab/ai-models-fourcastnetv2/tree/main) plugin to run the model. FoureCastNet v2-small applies Spherical Fourier Neural Operators (SFNOs) as neural network architecture (https://arxiv.org/abs/2306.03838).
+We use ECMWF's [ai_models_fourcastnetv2](https://github.com/ecmwf-lab/ai-models-fourcastnetv2/tree/main) plugin to run the model. FoureCastNet v2-small applies Spherical Fourier Neural Operators ([SFNOs](https://arxiv.org/abs/2306.03838)) as neural network architecture.
 
 ## Prerequisites
 The following packages are needed:
