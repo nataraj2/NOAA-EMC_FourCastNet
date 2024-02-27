@@ -16,15 +16,22 @@ device = torch.cuda.current_device() if torch.cuda.is_available() else 'cpu'
 
 def tweaked_messages(cube):
     for cube, grib_message in iris_grib.save_pairs_from_cube(cube):
+        eccodes.codes_set(grib_message, 'centre', 'kwbc')
         if cube.standard_name == 'air_pressure_at_sea_level':
             eccodes.codes_set(grib_message, 'discipline', 0)
             eccodes.codes_set(grib_message, 'parameterCategory', 3)
             eccodes.codes_set(grib_message, 'parameterNumber', 1)
             eccodes.codes_set(grib_message, 'typeOfFirstFixedSurface', 101)
-        if cube.standard_name == 'surface_water_amount':
+        if cube.standard_name == 'surface_air_pressure':
+            eccodes.codes_set(grib_message, 'discipline', 0)
+            eccodes.codes_set(grib_message, 'parameterCategory', 3)
+            eccodes.codes_set(grib_message, 'parameterNumber', 0)
+            eccodes.codes_set(grib_message, 'typeOfFirstFixedSurface', 1)
+        if cube.standard_name == 'precipitation_amount':
             eccodes.codes_set(grib_message, 'discipline', 0)
             eccodes.codes_set(grib_message, 'parameterCategory', 1)
             eccodes.codes_set(grib_message, 'parameterNumber', 3)
+            eccodes.codes_set(grib_message, 'typeOfFirstFixedSurface', 200)
 
     yield grib_message
 
@@ -36,8 +43,8 @@ class FourCastNetv2:
         4: {'name': 'v100', 'standard_name': 'y_wind', 'level': 100, 'units': 'm s**-1'},
         5: {'name': 't2m', 'standard_name': 'air_temperature', 'level': 2, 'units': 'K'},
         6: {'name': 'sp', 'standard_name': 'surface_air_pressure', 'level': 0, 'units': 'Pa'},
-        7: {'name': 'sp', 'standard_name': 'air_pressure_at_sea_level', 'level': 0, 'units': 'Pa'},
-        8: {'name': 'pwat', 'standard_name': 'surface_water_amount', 'level': 0, 'units': 'kg m**-2'},
+        7: {'name': 'msl', 'standard_name': 'air_pressure_at_sea_level', 'level': 0, 'units': 'Pa'},
+        8: {'name': 'pwat', 'standard_name': 'precipitation_amount', 'level': 0, 'units': 'kg m**-2'},
         9: {'name': 'u50', 'standard_name': 'x_wind', 'level': 50, 'units': 'm s**-1'},
         10: {'name': 'u100', 'standard_name': 'x_wind', 'level': 100, 'units': 'm s**-1'},
         11: {'name': 'u150', 'standard_name': 'x_wind', 'level': 150, 'units': 'm s**-1'},
@@ -230,7 +237,8 @@ class FourCastNetv2:
             cube.coord('longitude').coord_system=iris.coord_systems.GeogCS(4326)
             cube.add_aux_coord(iris.coords.DimCoord(step, standard_name='forecast_period', units='hours'))
             if i < 8:
-                cube.add_aux_coord(iris.coords.DimCoord(self.PARAM[i+1]['level'], standard_name='height', units='m'))
+                if self.PARAM[i+1]['standard_name'] not in ['precipitation_amount']:
+                    cube.add_aux_coord(iris.coords.DimCoord(self.PARAM[i+1]['level'], standard_name='height', units='m'))
             else:
                 cube.add_aux_coord(iris.coords.DimCoord(self.PARAM[i+1]['level']*100, standard_name='air_pressure', units='Pa'))
              
