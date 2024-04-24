@@ -6,7 +6,7 @@ forecasts 4 times a day at 00Z, 06Z, 12Z and 18Z cycles. Major atmospheric and s
 relative humidity and 2 meter temperature and 10 meter winds are available. The products are 6 hourly forecasts up to 10 days. The data format is GRIB2.
 
 The FourCastNetGFS system is an experimental weather forecast model built upon the pre-trained Nvidia's FourCastNet Machine Learning Weather Prediction
-(MLWP) model version 2. The FourCastNet (`Bonev et al. <https://arxiv.org/abs/2306.03838>`_) was developed by Nvidia using Adaptive Fourier Neural Operators. It uses a Fourier 
+(MLWP) model version 2. The FourCastNet (`Bonev et al., 2023 <https://arxiv.org/abs/2306.03838>`_) was developed by Nvidia using Adaptive Fourier Neural Operators. It uses a Fourier 
 transform-based token-mixing scheme with the vision transformer architecture. This model is pre-trained with ECMWF ERA5 reanalysis data. 
 The FourCastNetGFS takes one model state as initial condition from NCEP 0.25 degree GDAS analysis data and runs FourCastNet with weights 
 from the pretrained FourCastNet by Nvidia. Unit conversion to the GDAS data is conducted to match the input data required by FourCastNet 
