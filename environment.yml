@@ -1,0 +1,18 @@
+name: fourcastnet
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.10
+  - numpy
+  - boto3
+  - netcdf4
+  - xarray
+  - pygrib
+  - eccodes
+  - cfunits
+  - iris
+  - iris-grib
+  - pytorch
+  - pip 
+  - pip:
+    - ai-models-fourcastnetv2
