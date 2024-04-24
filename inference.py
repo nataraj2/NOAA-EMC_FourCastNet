@@ -37,10 +37,10 @@ def tweaked_messages(cube):
 
 class FourCastNetv2:
     PARAM = {
-        1: {'name': 'u10', 'standard_name': 'x_wind', 'level': 10, 'units': 'm s**-1'},
-        2: {'name': 'v10', 'standard_name': 'y_wind', 'level': 10, 'units': 'm s**-1'},
-        3: {'name': 'v100', 'standard_name': 'x_wind', 'level': 100, 'units': 'm s**-1'},
-        4: {'name': 'v100', 'standard_name': 'y_wind', 'level': 100, 'units': 'm s**-1'},
+        1: {'name': '10u', 'standard_name': 'x_wind', 'level': 10, 'units': 'm s**-1'},
+        2: {'name': '10v', 'standard_name': 'y_wind', 'level': 10, 'units': 'm s**-1'},
+        3: {'name': '100u', 'standard_name': 'x_wind', 'level': 100, 'units': 'm s**-1'},
+        4: {'name': '100v', 'standard_name': 'y_wind', 'level': 100, 'units': 'm s**-1'},
         5: {'name': 't2m', 'standard_name': 'air_temperature', 'level': 2, 'units': 'K'},
         6: {'name': 'sp', 'standard_name': 'surface_air_pressure', 'level': 0, 'units': 'Pa'},
         7: {'name': 'msl', 'standard_name': 'air_pressure_at_sea_level', 'level': 0, 'units': 'Pa'},
@@ -198,6 +198,7 @@ class FourCastNetv2:
             print(f'Starting inference for step {i} ')
             
             output = model(input_iter)
+            input_iter = output
 
             step = (i + 1) * 6
             output = self.normalise(output.cpu().numpy(), reverse=True)
