@@ -1,6 +1,6 @@
 Run FourCastNetGFS
 =======================================================
-We use ECMWF pre-trained model weights and normalization statistics to run FourCastNet in inference mode. These files can be downloaded at::
+We use weights and normalization statistics archived at ECMWF to run FourCastNet in inference mode. These files can be downloaded at::
 
     wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/weights.tar
     wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/global_means.npy

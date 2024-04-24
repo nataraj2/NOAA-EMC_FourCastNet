@@ -29,6 +29,6 @@ The model output fields are:
 
   * mean sea-level pressure
 
-  * Surfce pressure
+  * surfce pressure
 
   * Precipitable water
