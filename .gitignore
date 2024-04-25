@@ -3,3 +3,5 @@ build/
 develop-eggs/
 dist/
 *.swp
+.gitignore
+.readthedocs.yaml
