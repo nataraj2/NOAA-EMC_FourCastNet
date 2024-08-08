@@ -1,10 +1,12 @@
 import os
 import argparse
 from datetime import datetime, timedelta
+import pathlib
 
 import numpy as np
 import torch
 import ai_models_fourcastnetv2.fourcastnetv2 as nvs
+#import fourcastnetv2 as nvs
 import iris
 from iris.cube import Cube
 from iris.coords import DimCoord
@@ -12,7 +14,9 @@ import iris_grib
 import eccodes
 import cf_units
 
-device = torch.cuda.current_device() if torch.cuda.is_available() else 'cpu'
+#device = torch.cuda.current_device() if torch.cuda.is_available() else 'cpu'
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f'device is {device}')
 
 def tweaked_messages(cube):
     for cube, grib_message in iris_grib.save_pairs_from_cube(cube):
@@ -122,7 +126,11 @@ class FourCastNetv2:
         self.start_time = start_time
         self.assets = assets
         self.inputs = inputs
-        self.outputs = outputs
+
+        outdir = pathlib.Path(f'{outputs}/fcngfs.{start_time.strftime("%Y%m%d")}/{start_time.hour:02d}')
+        outdir.mkdir(parents=True, exist_ok=True)
+        self.outputs = outdir
+
         self.leading_time = leading_time
         self.backbone_channels = len(self.PARAM)
 
@@ -183,6 +191,9 @@ class FourCastNetv2:
         with open(self.inputs, 'rb') as f: 
             data = np.load(f)
             
+        #save f000
+        self.write(np.expand_dims(data, axis=0), 0)
+
         all_fields_numpy = data.astype(np.float32)
 
         all_fields_numpy = self.normalise(all_fields_numpy)
@@ -207,7 +218,7 @@ class FourCastNetv2:
             self.write(output, step)
 
     def write(self, data, step):
-        out_fname = f'fcngfs.t{self.start_time.hour:02d}z.pgrb2.0p25.f{step:03d}'
+        out_fname = f'{self.outputs}/fcngfs.t{self.start_time.hour:02d}z.pgrb2.0p25.f{step:03d}'
 
         if os.path.isfile(out_fname):
             print(f'Deleting file {out_fname}')
