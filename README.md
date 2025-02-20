@@ -49,7 +49,7 @@ python inference.py YYYYMMDDHH -w </path/to/weightsandstats> -i </path/to/input/
 ### Output
 The forecast results will be saved in GRIB2 format.
 
-Products:
+#### Products:
 
 The FourCastNetGFS model runs 4 times a day at 00Z, 06Z, 12Z, and 18Z cycles. The horizontal resolution is on 0.25 degree lat-lon grid. The vertical resolutions are 13 pressure levels.
 
@@ -59,26 +59,26 @@ The 13 pressure levels include:
 The model output fields are:
 
 - 3D fields on pressure levels:
-temperature
-U and V component of wind
-geopotential height
-relative humidity
-
+   temperature  
+   U and V component of wind  
+   geopotential height  
+   relative humidity  
+   
 - 2D surface fields:
-10-m U and V components of wind
-100-m U and V components of wind
-2-m temperature
-mean sea-level pressure
-Precipitable water in the entire atmosphere as single column
-
+   10-m U and V components of wind  
+   100-m U and V components of wind  
+   2-m temperature  
+   mean sea-level pressure  
+   Precipitable water in the entire atmosphere as single column  
+   
 The near real-time forecast outputs along with inputs are available on AWS.
-
+   
 For each cycle, the dataset contains input files to feed into GraphCast found in the directory:
-
+   
 fourcastnetgfs.yyyymmdd/hh/input
-
+   
 and 10-day forecast results for the current cycle found in the following directories:
-
+   
 fourcastnetgfs.yyyymmdd/hh/forecasts_13_levels
 
 
