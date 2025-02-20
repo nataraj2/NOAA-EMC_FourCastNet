@@ -18,12 +18,12 @@ fi
 #curr_datetime=$(date -u -d "$time" +'%Y%m%d%H')
 fcst_datetime=$( date -d "$datetime 12 hour ago" "+%Y%m%d%H" )
 
-echo "Job 1 is running"
+echo "Job 1 prepdata is running"
 sh /scratch1/NCEPDEV/nems/Linlin.Cui/Tests/FourCastNetv2/realtime_forecast/fcn_prepdata_hera.sh $fcst_datetime
 sleep 60  # Simulating some work
-echo "Job 1 completed"
+echo "Job 1 prepdata completed"
 
-echo "Job 2 is running"
+echo "Job 2 runfcst is running"
 job2_id=$(sbatch /scratch1/NCEPDEV/nems/Linlin.Cui/Tests/FourCastNetv2/realtime_forecast/fcn_runfcst_hera_gpu.sh $fcst_datetime | awk '{print $4}')
 
 # Wait for job 2 to complete
@@ -31,9 +31,9 @@ while squeue -j $job2_id &>/dev/null; do
     sleep 5  # Adjust the polling interval as needed
 done
 sleep 5  # Simulating some work
-echo "Job 2 completed"
+echo "Job 2 runfcst completed"
 
-echo "Job 3 is running"
+echo "Job 3 upload data to s3 is running"
 sh /scratch1/NCEPDEV/nems/Linlin.Cui/Tests/FourCastNetv2/realtime_forecast/fcn_datadissm_hera.sh $fcst_datetime
 sleep 5
-echo "Job 3 completed"
+echo "Job 3 uploading data to s3 completed"
