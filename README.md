@@ -73,12 +73,12 @@ The model output fields are:
    
 The near real-time forecast outputs along with inputs are available on AWS.
    
-For each cycle, the dataset contains input files to feed into GraphCast found in the directory:
+For each cycle, the dataset contains input files to feed into FourCastNet found in the directory:
    
-        'fourcastnetgfs.yyyymmdd/hh/input'
+        'fourcastnetgfs.yyyymmdd/hh/input_yyyymmddhh.npy'
    
 and 10-day forecast results for the current cycle found in the following directories:
    
-        'fourcastnetgfs.yyyymmdd/hh/forecasts_13_levels'
+        'fourcastnetgfs.yyyymmdd/hh'
 
 
