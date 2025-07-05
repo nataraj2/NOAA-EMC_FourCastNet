@@ -21,6 +21,7 @@ import pygrib
 def get_dataarray(grbfile, var_name, level_type, desired_level):
 
     # Find the matching grib message
+    print("Var name, level type", var_name, level_type)
     variable_message = grbfile.select(shortName=var_name, typeOfLevel=level_type, level=desired_level)
 
     #latitude read from pygrib is in [90, -90], no need to reverse for FourCastNet
@@ -67,7 +68,9 @@ class GFSDataProcessor:
         # Define downloaded file name 
         self.out_filename = f'{self.local_directory}/gdas.t{self.start_datetime.strftime("%H")}z.pgrb2.0p25.f000'
 
+
         if not os.path.isfile(self.out_filename):
+            print("Reaching inside here....")
             self.download_data()
     
     def s3bucket(self):
@@ -81,13 +84,41 @@ class GFSDataProcessor:
         s3_prefix = f'{root_directory}.{self.start_datetime.strftime("%Y%m%d")}/{self.start_datetime.hour:02d}/atmos'
         obj_key = f'{s3_prefix}/gdas.t{int(self.start_datetime.hour):02d}z.pgrb2.0p25.f000'
 
+         # PRINT EFFECTIVE URL
+        effective_url = f'https://{bucket_name}.s3.amazonaws.com/{obj_key}'
+        print(f"Effective S3 URL: {effective_url}")
+
         with open(self.out_filename, "wb") as f:
             s3.download_fileobj(bucket_name, obj_key, f)
         print(f"Downloaded {obj_key} to {self.out_filename}")
-    
+   
+    def print_gdas_url(self):
+        """
+        Extracts YYYYMMDDHH timestamp from sys.argv[1] and prints the corresponding GDAS URL.
+        """
+        if len(sys.argv) < 2:
+            print("Usage: python gdas_url.py YYYYMMDDHH")
+            sys.exit(1)
+
+        timestamp = sys.argv[1]
+        if len(timestamp) != 10 or not timestamp.isdigit():
+            print("Error: Timestamp must be in format YYYYMMDDHH (10-digit number)")
+            sys.exit(1)
+
+        year = timestamp[:4]
+        year_month = timestamp[:6]
+        filename = f"gdas1.fnl0p25.{timestamp}.f00.grib2"
+        url = f"https://data-osdf.rda.ucar.edu/ncar/rda/d083003/{year}/{year_month}/{filename}"
+
+        return url
+
     def nomads(self):
 
-        gdas_url = f'https://nomads.ncep.noaa.gov/cgi-bin/filter_fnl.pl?dir=%2Fgdas.{self.start_datetime.strftime("%Y%m%d")}%2F{self.start_datetime.strftime("%H")}%2Fatmos&file=gdas.t{self.start_datetime.strftime("%H")}z.pgrb2.1p00.f000&var_HGT=on&var_PRMSL=on&var_SPFH=on&var_TMP=on&var_UGRD=on&var_VGRD=on&lev_2_m_above_ground=on&lev_10_m_above_ground=on&lev_1000_mb=on&lev_925_mb=on&lev_850_mb=on&lev_700_mb=on&lev_600_mb=on&lev_500_mb=on&lev_400_mb=on&lev_300_mb=on&lev_250_mb=on&lev_200_mb=on&lev_150_mb=on&lev_100_mb=on&lev_50_mb=on&lev_mean_sea_level=on'
+        gdas_url = self.print_gdas_url()
+
+        #gdas_url = f'https://data-osdf.rda.ucar.edu/ncar/rda/d083003/2020/202008/gdas1.fnl0p25.2020082600.f00.grib2'        
+
+        print(f"Downloaded file",gdas_url)
 
         # Download the file from S3 to the local path
         try:
@@ -99,14 +130,17 @@ class GFSDataProcessor:
         
     def download_data(self):
 
+        print("before Getting from nomads")
         if self.download_source == 's3':
             self.s3bucket()
         else:
+            print("Getting from nomads")
             self.nomads()
 
         print("Download completed.")
 
     def get_data(self, method='wgrib2'):
+        print("Getting data")
         if method == "wgrib2":
           self.process_data_with_wgrib2()
         elif method == "pygrib":

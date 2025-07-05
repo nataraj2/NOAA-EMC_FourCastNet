@@ -162,7 +162,7 @@ class FourCastNetv2:
         model = nvs.FourierNeuralOperatorNet()
         model.zero_grad()
     
-        checkpoint = torch.load(checkpoint_file, map_location=device)
+        checkpoint = torch.load(checkpoint_file, map_location=device, weights_only=False)
         weights = checkpoint["model_state"]
         drop_vars = ["module.norm.weight", "module.norm.bias"]
         weights = {k: v for k, v in weights.items() if k not in drop_vars}
