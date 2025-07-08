@@ -86,10 +86,11 @@ and 10-day forecast results for the current cycle found in the following directo
 This section contains some examples for inference. Hurricanes in years 2020 and 2021 are considered.
 
 1. Create a directory `WeightsAndMeans`, and download the following into that directory.
-```bash
+```
 wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/weights.tar
 wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/global_means.npy
 wget https://get.ecmwf.int/repository/test-data/ai-models/fourcastnetv2/small/global_stds.npy
+```
 
 2. Consider Hurricane Laura that formed on August 26, 2020. The following script downloads the input file 
 from GFS on August 26, 2020 UTC 00:00, and writes a `.npy` file, that will be used as input for inference.  
