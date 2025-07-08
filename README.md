@@ -103,8 +103,8 @@ Output directory.
 python3 inference.py 2020082600 -w WeightsAndMeans -i input_2020082600.npy -o Output -l 120
 ```
 
-Use 2021082700 for hurricane Ida and 20210819 for hurricane Henri. The results of the inference showing the  
-velocity magnitude (km/hr) for the hurricanes are shown below.
+Use 2021082700 for hurricane Ida and 20210819 for hurricane Henri. The animations below show the results of 
+the inference showing the velocity magnitude (km/hr) for the hurricanes, along with the NOAA prediction.
 
 ![HurricaneLaura](NCEP/animations/HurricaneLaura_NOAA-ECM_FCNet.gif)
 ![HurricaneIda](NCEP/animations/HurricaneIda_NOAA-ECM_FCNet.gif)
